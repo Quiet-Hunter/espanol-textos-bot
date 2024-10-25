@@ -7,6 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import logging
 import pytz
+from datetime import datetime, timedelta
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -21,16 +22,20 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 # Initialize bot
 bot = Bot(token=API_KEY)
 
-# Function to fetch a short, interesting Spanish article using the Mediastack API
+# Function to fetch a short, interesting Spanish article from yesterday using the Mediastack API
 def fetch_article():
+    # Get yesterday's date
+    yesterday = (datetime.now(pytz.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
+    
     # Define the Mediastack API URL and parameters
     url = "http://api.mediastack.com/v1/news"
     params = {
         'access_key': MEDIASTACK_API_KEY,
         'languages': 'es',            # Spanish language
-        'categories': 'science,technology,health,entertainment',  # Choose interesting topics
-        'limit': 1,                   # Only get one article
+        'categories': 'science,technology,health',  # Choose interesting topics
+        'limit': 1,                   # Get only one article
         'sort': 'popularity',         # Sort by popularity to get an interesting one
+        'date': f'{yesterday}',  # Fetch only yesterday's articles
     }
 
     # Make a request to the Mediastack API
@@ -49,7 +54,7 @@ def fetch_article():
             # Return the formatted article summary
             return f"*{title}*\n\n{description}\n\n[Leer más]({url})"
         else:
-            return "No se encontraron artículos interesantes hoy."
+            return "No se encontraron artículos interesantes para ayer."
     else:
         return "Error al obtener el artículo. Inténtalo más tarde."
 
@@ -70,7 +75,7 @@ def schedule_daily_message():
     # Set your timezone (e.g., UTC, Europe/Madrid)
     timezone = pytz.timezone('UTC')
     # Schedule the job with timezone information
-    scheduler.add_job(send_message, trigger=CronTrigger(hour=10, minute=35, timezone=timezone))
+    scheduler.add_job(send_message, trigger=CronTrigger(hour=11, minute=30, timezone=timezone))
     scheduler.start()
 
 def main():
@@ -87,6 +92,8 @@ def main():
     # Start the bot
     updater.start_polling()
     updater.idle()
+
+    # send_message()
 
 if __name__ == '__main__':
     main()
