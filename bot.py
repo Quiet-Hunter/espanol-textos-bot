@@ -32,7 +32,7 @@ def fetch_article():
     params = {
         'access_key': MEDIASTACK_API_KEY,
         'languages': 'es',            # Spanish language
-        'categories': 'science,technology,health',  # Choose interesting topics
+        'categories': 'science,technology,health,entertainment,business',  # Choose interesting topics
         'limit': 1,                   # Get only one article
         'sort': 'popularity',         # Sort by popularity to get an interesting one
         'date': f'{yesterday}',  # Fetch only yesterday's articles
@@ -53,17 +53,19 @@ def fetch_article():
 
             # Return the formatted article summary
             return f"*{title}*\n\n{description}\n\n[Leer más]({url})"
-        else:
-            return "No se encontraron artículos interesantes para ayer."
-    else:
-        return "Error al obtener el artículo. Inténtalo más tarde."
+    return None
+    #     else:
+    #         return "No se encontraron artículos interesantes para ayer."
+    # else:
+    #     return "Error al obtener el artículo. Inténtalo más tarde."
 
 # Function to send message to the group with the fetched article
 def send_message():
     # Fetch the article
     article_summary = fetch_article()
     # Send the article to the Telegram group
-    bot.send_message(chat_id=CHAT_ID, text=article_summary, parse_mode='Markdown')
+    if article_summary:
+        bot.send_message(chat_id=CHAT_ID, text=article_summary, parse_mode='Markdown')
 
 # Function to handle the /start command
 def start(update, context):
