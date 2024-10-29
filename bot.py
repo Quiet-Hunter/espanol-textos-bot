@@ -77,7 +77,7 @@ def schedule_daily_message():
     # Set your timezone (e.g., UTC, Europe/Madrid)
     timezone = pytz.timezone('UTC')
     # Schedule the job with timezone information
-    scheduler.add_job(send_message, trigger=CronTrigger(hour=11, minute=30, timezone=timezone))
+    scheduler.add_job(send_message, trigger=CronTrigger(hour=10, minute=36, timezone=timezone))
     scheduler.start()
 
 def main():
