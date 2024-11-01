@@ -5,21 +5,28 @@ from apscheduler.triggers.cron import CronTrigger
 import pytz
 import logging
 from send_message import send_message
+from send_news import send_news
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Set up a scheduler to run daily at 11:00 UTC
-def schedule_daily_message():
+# Set up a scheduler to run both jobs
+def schedule_daily_messages():
     scheduler = BackgroundScheduler()
     timezone = pytz.timezone('UTC')
-    scheduler.add_job(send_message, trigger=CronTrigger(hour=11, minute=0, timezone=timezone))
+    
+    # Schedule the job for sending news at 11:00 UTC
+    scheduler.add_job(send_news, trigger=CronTrigger(hour=11, minute=0, timezone=timezone))
+    
+    # Schedule the job for sending a word at 18:00 UTC
+    scheduler.add_job(send_message, trigger=CronTrigger(hour=18, minute=0, timezone=timezone))
+
     scheduler.start()
     scheduler.print_jobs()  # Optional: prints scheduled jobs to the log
 
 # Start the scheduler
 if __name__ == '__main__':
-    schedule_daily_message()
+    schedule_daily_messages()
 
     # Keep the scheduler running
     try:
