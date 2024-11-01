@@ -3,7 +3,8 @@ import csv
 import requests
 from dotenv import load_dotenv
 from telegram import Bot
-from .constants import WORDS_NUM
+
+WORDS_NUM = 5
 
 # Load environment variables
 load_dotenv()

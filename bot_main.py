@@ -12,7 +12,9 @@ import logging
 from groups_manager import load_chat_ids, save_chat_id, remove_chat_id
 from send_message import send_message
 from send_news import send_news
-from constants import NEWS_HOUR_UTC, WORDS_HOUR_UTC
+
+NEWS_HOUR_UTC = 11
+WORDS_HOUR_UTC = 18
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
