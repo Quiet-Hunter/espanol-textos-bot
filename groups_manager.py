@@ -1,28 +1,54 @@
-# groups_manager.py
-
 import os
+import requests
 
-CHAT_IDS_FILE = 'chat_ids.txt'
+# Environment variables for Gist ID and GitHub Token
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GIST_ID = os.getenv("GIST_ID")
 
-# Load all chat IDs from the file
+# Headers for GitHub API requests
+headers = {
+    "Authorization": f"token {GITHUB_TOKEN}",
+    "Accept": "application/vnd.github.v3+json"
+}
+
 def load_chat_ids():
-    if not os.path.exists(CHAT_IDS_FILE):
+    """Fetch chat IDs from the Gist."""
+    url = f"https://api.github.com/gists/{GIST_ID}"
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        files = response.json()["files"]
+        content = files["chat_ids.txt"]["content"]
+        return set(content.splitlines())
+    else:
+        print(f"Failed to load chat_ids: {response.status_code}")
         return set()
-    with open(CHAT_IDS_FILE, 'r') as file:
-        return set(line.strip() for line in file)
 
-# Save a new chat ID to the file
 def save_chat_id(chat_id):
+    """Add a new chat ID to the Gist if it doesn't already exist."""
     chat_ids = load_chat_ids()
     if chat_id not in chat_ids:
-        with open(CHAT_IDS_FILE, 'a') as file:
-            file.write(f"{chat_id}\n")
+        chat_ids.add(chat_id)
+        update_gist(chat_ids)
 
-# Remove a chat ID from the file (optional, in case bot leaves the group)
 def remove_chat_id(chat_id):
+    """Remove a chat ID from the Gist if it exists."""
     chat_ids = load_chat_ids()
     if chat_id in chat_ids:
         chat_ids.remove(chat_id)
-        with open(CHAT_IDS_FILE, 'w') as file:
-            for cid in chat_ids:
-                file.write(f"{cid}\n")
+        update_gist(chat_ids)
+
+def update_gist(chat_ids):
+    """Update the Gist with the new list of chat IDs."""
+    url = f"https://api.github.com/gists/{GIST_ID}"
+    data = {
+        "files": {
+            "chat_ids.txt": {
+                "content": "\n".join(chat_ids)
+            }
+        }
+    }
+    response = requests.patch(url, headers=headers, json=data)
+    if response.status_code == 200:
+        print("chat_ids.txt updated successfully.")
+    else:
+        print(f"Failed to update chat_ids.txt: {response.status_code}")

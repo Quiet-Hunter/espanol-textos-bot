@@ -1,5 +1,3 @@
-# send_news.py
-
 import os
 import requests
 from dotenv import load_dotenv
@@ -16,8 +14,8 @@ MEDIASTACK_API_KEY = os.getenv('MEDIASTACK_API_KEY')
 # Initialize bot
 bot = Bot(token=API_KEY)
 
-# Function to fetch a news article from the Mediastack API
 def fetch_article():
+    """Fetches a news article from the Mediastack API."""
     yesterday = (datetime.now(pytz.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
     url = "http://api.mediastack.com/v1/news"
     params = {
@@ -40,8 +38,8 @@ def fetch_article():
             return f"*{title}*\n\n{description}\n\n[Leer más]({url})"
     return None
 
-# Function to send the news article to each group
 def send_news(chat_ids):
+    """Sends the news article to each chat in the provided chat_ids list."""
     article_summary = fetch_article()
     if article_summary:
         for chat_id in chat_ids:

@@ -1,5 +1,3 @@
-# send_message.py
-
 import os
 import csv
 import requests
@@ -16,8 +14,8 @@ INDEX_FILE = 'index.txt'
 # Initialize bot
 bot = Bot(token=API_KEY)
 
-# Function to fetch words and translations from Google Sheets
 def fetch_words():
+    """Fetches words and translations from a Google Sheets CSV."""
     response = requests.get(GOOGLE_SHEETS_CSV_URL)
     response.raise_for_status()
     words = []
@@ -29,21 +27,21 @@ def fetch_words():
             words.append((row[0], row[1]))  # Append (word, translation) tuples
     return words
 
-# Function to get the current index
 def get_current_index():
+    """Retrieves the current index from the index file."""
     if not os.path.exists(INDEX_FILE):
         return 0
     with open(INDEX_FILE, 'r') as file:
         index = file.read().strip()
         return int(index) if index.isdigit() else 0
 
-# Function to save the current index
 def save_current_index(index):
+    """Saves the current index to the index file."""
     with open(INDEX_FILE, 'w') as file:
         file.write(str(index))
 
-# Function to send a group of words to each chat
 def send_message(chat_ids):
+    """Sends a group of words to each chat in the provided chat_ids list."""
     words = fetch_words()
     total_words = len(words)
     if total_words == 0:
@@ -53,11 +51,10 @@ def send_message(chat_ids):
     
     current_index = get_current_index()
     next_index = current_index + 5
-
-    # Select the next group of 5 words, cycling back to the start if the end is reached
     word_group = words[current_index:next_index]
+
+    # If reaching the end of the list, loop back to the start
     if next_index >= total_words:
-        # If reaching the end, loop back to the beginning
         next_index = 0
 
     # Update the current index for the next run
