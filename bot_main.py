@@ -39,10 +39,10 @@ def schedule_daily_messages():
     timezone = pytz.timezone('UTC')
     
     # Schedule news at 11:00 UTC
-    scheduler.add_job(lambda: send_news(load_chat_ids()), trigger=CronTrigger(hour=12, minute=45, timezone=timezone))
+    scheduler.add_job(lambda: send_news(load_chat_ids()), trigger=CronTrigger(hour=12, minute=52, timezone=timezone))
     
     # Schedule word at 18:00 UTC
-    scheduler.add_job(lambda: send_message(load_chat_ids()), trigger=CronTrigger(hour=12, minute=50, timezone=timezone))
+    scheduler.add_job(lambda: send_message(load_chat_ids()), trigger=CronTrigger(hour=12, minute=52, timezone=timezone))
 
     scheduler.start()
     logging.info("Scheduler started with daily jobs for news and words.")
