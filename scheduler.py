@@ -36,7 +36,7 @@ def schedule_daily_messages():
     scheduler.add_job(lambda: send_news(load_chat_ids()), trigger=CronTrigger(hour=11, minute=0, timezone=timezone))
     
     # Schedule word at 18:00 UTC
-    scheduler.add_job(lambda: send_message(load_chat_ids()), trigger=CronTrigger(hour=11, minute=38, timezone=timezone))
+    scheduler.add_job(lambda: send_message(load_chat_ids()), trigger=CronTrigger(hour=18, minute=0, timezone=timezone))
 
     scheduler.start()
     scheduler.print_jobs()
