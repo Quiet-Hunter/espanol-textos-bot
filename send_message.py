@@ -5,6 +5,7 @@ import csv
 import requests
 from dotenv import load_dotenv
 from telegram import Bot
+import telegram
 from groups_manager import load_chat_ids
 
 WORDS_NUM = 5
@@ -84,7 +85,12 @@ def send_message():
     # Format and send the message
     message = "\n".join([f"*{word}* - {translation}" for word, translation in word_group])
     for chat_id in chat_ids:
-        bot.send_message(chat_id=chat_id, text=message, parse_mode='Markdown')
+        print(f"Attempting to send message to chat_id: {chat_id}")
+        try:
+            bot.send_message(chat_id=chat_id, text=message, parse_mode='Markdown')
+        except telegram.error.BadRequest as e:
+            print(f"Failed to send message to {chat_id}: {e}")
+
 
 if __name__ == '__main__':
     send_message()
