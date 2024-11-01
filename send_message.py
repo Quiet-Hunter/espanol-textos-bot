@@ -3,6 +3,7 @@ import csv
 import requests
 from dotenv import load_dotenv
 from telegram import Bot
+from .constants import WORDS_NUM
 
 # Load environment variables
 load_dotenv()
@@ -72,7 +73,7 @@ def send_message(chat_ids):
         return
     
     current_index = get_current_index()
-    next_index = current_index + 5
+    next_index = current_index + WORDS_NUM
     word_group = words[current_index:next_index]
 
     # If reaching the end of the list, loop back to the start

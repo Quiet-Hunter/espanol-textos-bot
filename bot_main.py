@@ -12,6 +12,7 @@ import logging
 from groups_manager import load_chat_ids, save_chat_id, remove_chat_id
 from send_message import send_message
 from send_news import send_news
+from constants import NEWS_HOUR_UTC, WORDS_HOUR_UTC
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -39,10 +40,10 @@ def schedule_daily_messages():
     timezone = pytz.timezone('UTC')
     
     # Schedule news at 11:00 UTC
-    scheduler.add_job(lambda: send_news(load_chat_ids()), trigger=CronTrigger(hour=12, minute=57, timezone=timezone))
+    scheduler.add_job(lambda: send_news(load_chat_ids()), trigger=CronTrigger(hour=NEWS_HOUR_UTC, minute=0, timezone=timezone))
     
     # Schedule word at 18:00 UTC
-    scheduler.add_job(lambda: send_message(load_chat_ids()), trigger=CronTrigger(hour=12, minute=57, timezone=timezone))
+    scheduler.add_job(lambda: send_message(load_chat_ids()), trigger=CronTrigger(hour=WORDS_HOUR_UTC, minute=0, timezone=timezone))
 
     scheduler.start()
     logging.info("Scheduler started with daily jobs for news and words.")
