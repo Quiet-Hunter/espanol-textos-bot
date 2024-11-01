@@ -1,8 +1,11 @@
+# send_message.py
+
 import os
 import csv
 import requests
 from dotenv import load_dotenv
 from telegram import Bot
+from groups_manager import load_chat_ids
 
 WORDS_NUM = 5
 
@@ -16,7 +19,6 @@ GIST_ID = os.getenv('GIST_ID')
 
 # Initialize bot
 bot = Bot(token=API_KEY)
-
 # GitHub headers for API requests
 headers = {
     "Authorization": f"token {GITHUB_TOKEN}",
@@ -51,21 +53,16 @@ def get_current_index():
 def save_current_index(index):
     """Updates the current index in index.txt in the Gist."""
     url = f"https://api.github.com/gists/{GIST_ID}"
-    data = {
-        "files": {
-            "index.txt": {
-                "content": str(index)
-            }
-        }
-    }
+    data = {"files": {"index.txt": {"content": str(index)}}}
     response = requests.patch(url, headers=headers, json=data)
     if response.status_code == 200:
         print("index.txt updated successfully in the Gist.")
     else:
         print(f"Failed to update index.txt: {response.status_code}")
 
-def send_message(chat_ids):
-    """Sends a group of words to each chat in the provided chat_ids list."""
+def send_message():
+    """Sends a group of words to each chat in the Gist's chat_ids list."""
+    chat_ids = load_chat_ids()
     words = fetch_words()
     total_words = len(words)
     if total_words == 0:
@@ -88,3 +85,6 @@ def send_message(chat_ids):
     message = "\n".join([f"*{word}* - {translation}" for word, translation in word_group])
     for chat_id in chat_ids:
         bot.send_message(chat_id=chat_id, text=message, parse_mode='Markdown')
+
+if __name__ == '__main__':
+    send_message()

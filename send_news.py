@@ -1,9 +1,12 @@
+# send_news.py
+
 import os
 import requests
 from dotenv import load_dotenv
 from telegram import Bot
 from datetime import datetime, timedelta
 import pytz
+from groups_manager import load_chat_ids
 
 # Load environment variables
 load_dotenv()
@@ -38,8 +41,9 @@ def fetch_article():
             return f"*{title}*\n\n{description}\n\n[Leer más]({url})"
     return None
 
-def send_news(chat_ids):
-    """Sends the news article to each chat in the provided chat_ids list."""
+def send_news():
+    """Sends the news article to each chat in the Gist's chat_ids list."""
+    chat_ids = load_chat_ids()
     article_summary = fetch_article()
     if article_summary:
         for chat_id in chat_ids:
@@ -47,3 +51,6 @@ def send_news(chat_ids):
     else:
         for chat_id in chat_ids:
             bot.send_message(chat_id=chat_id, text="No se encontraron artículos interesantes para ayer.")
+
+if __name__ == '__main__':
+    send_news()
