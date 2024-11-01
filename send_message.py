@@ -9,10 +9,17 @@ load_dotenv()
 
 API_KEY = os.getenv('BOT_API_KEY')
 GOOGLE_SHEETS_CSV_URL = os.getenv('GOOGLE_SHEETS_CSV_URL')
-INDEX_FILE = 'index.txt'
+GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
+GIST_ID = os.getenv('GIST_ID')
 
 # Initialize bot
 bot = Bot(token=API_KEY)
+
+# GitHub headers for API requests
+headers = {
+    "Authorization": f"token {GITHUB_TOKEN}",
+    "Accept": "application/vnd.github.v3+json"
+}
 
 def fetch_words():
     """Fetches words and translations from a Google Sheets CSV."""
@@ -28,17 +35,32 @@ def fetch_words():
     return words
 
 def get_current_index():
-    """Retrieves the current index from the index file."""
-    if not os.path.exists(INDEX_FILE):
+    """Fetches the current index from index.txt in the Gist."""
+    url = f"https://api.github.com/gists/{GIST_ID}"
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        files = response.json().get("files", {})
+        content = files.get("index.txt", {}).get("content", "0")
+        return int(content.strip()) if content.isdigit() else 0
+    else:
+        print(f"Failed to load index.txt: {response.status_code}")
         return 0
-    with open(INDEX_FILE, 'r') as file:
-        index = file.read().strip()
-        return int(index) if index.isdigit() else 0
 
 def save_current_index(index):
-    """Saves the current index to the index file."""
-    with open(INDEX_FILE, 'w') as file:
-        file.write(str(index))
+    """Updates the current index in index.txt in the Gist."""
+    url = f"https://api.github.com/gists/{GIST_ID}"
+    data = {
+        "files": {
+            "index.txt": {
+                "content": str(index)
+            }
+        }
+    }
+    response = requests.patch(url, headers=headers, json=data)
+    if response.status_code == 200:
+        print("index.txt updated successfully in the Gist.")
+    else:
+        print(f"Failed to update index.txt: {response.status_code}")
 
 def send_message(chat_ids):
     """Sends a group of words to each chat in the provided chat_ids list."""
