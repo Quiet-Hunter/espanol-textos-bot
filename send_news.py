@@ -50,7 +50,8 @@ def send_news():
             bot.send_message(chat_id=chat_id, text=article_summary, parse_mode='Markdown')
     else:
         for chat_id in chat_ids:
-            bot.send_message(chat_id=chat_id, text="No se encontraron artículos interesantes para ayer.")
+            return None
+            # bot.send_message(chat_id=chat_id, text="No se encontraron artículos interesantes para ayer.")
 
 if __name__ == '__main__':
     send_news()
