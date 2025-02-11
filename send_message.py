@@ -60,29 +60,37 @@ def save_current_index(index):
         print("index.txt updated successfully in the Gist.")
     else:
         print(f"Failed to update index.txt: {response.status_code}")
-
 def send_message():
     """Sends a group of words to each chat in the Gist's chat_ids list."""
     chat_ids = load_chat_ids()
     words = fetch_words()
     total_words = len(words)
+
     if total_words == 0:
         for chat_id in chat_ids:
             bot.send_message(chat_id=chat_id, text="No words found in the list.")
         return
-    
+
+    # Get the current index and reset it if it’s out of range.
     current_index = get_current_index()
+    if current_index >= total_words:
+        current_index = 0
+
+    # Calculate the next index.
     next_index = current_index + WORDS_NUM
-    word_group = words[current_index:next_index]
 
-    # If reaching the end of the list, loop back to the start
-    if next_index >= total_words:
-        next_index = 0
+    # If the group does not reach the end, just slice normally.
+    if next_index <= total_words:
+        word_group = words[current_index:next_index]
+    else:
+        # Wrap around: take the remainder from the end and the beginning of the list.
+        word_group = words[current_index:] + words[:(next_index - total_words)]
+        next_index = next_index - total_words  # Adjust next_index after wrapping.
 
-    # Update the current index for the next run
+    # Update the index in the Gist for the next run.
     save_current_index(next_index)
 
-    # Format and send the message
+    # Format the message ensuring that it has content.
     message = "\n".join([f"*{word}* - {translation}" for word, translation in word_group])
     for chat_id in chat_ids:
         print(f"Attempting to send message to chat_id: {chat_id}")
@@ -90,7 +98,6 @@ def send_message():
             bot.send_message(chat_id=chat_id, text=message, parse_mode='Markdown')
         except telegram.error.BadRequest as e:
             print(f"Failed to send message to {chat_id}: {e}")
-
 
 if __name__ == '__main__':
     send_message()
