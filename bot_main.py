@@ -1,10 +1,8 @@
-# bot_main.py
-
-from telegram import Bot, Update
-from telegram.ext import Dispatcher, MessageHandler, Filters, CallbackContext
-from flask import Flask, request
 import os
 import logging
+from telegram import Bot, Update
+from telegram.ext import Dispatcher, MessageHandler, Filters
+from flask import Flask, request
 from groups_manager import save_chat_id, remove_chat_id
 
 # Set up logging
@@ -18,7 +16,7 @@ app = Flask(__name__)
 # Initialize dispatcher without polling
 dispatcher = Dispatcher(bot, None, use_context=True)
 
-def track_group_membership(update: Update, context: CallbackContext):
+def track_group_membership(update: Update):
     """Tracks when the bot is added to or removed from a group."""
     chat_id = str(update.effective_chat.id)
     if update.message.new_chat_members:

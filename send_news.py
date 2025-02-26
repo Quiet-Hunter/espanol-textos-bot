@@ -1,10 +1,13 @@
-# send_news.py
-
+"""
+Functions:
+    fetch_article(): Fetches a news article from the Mediastack API.
+    send_news(): Sends the fetched news article to each chat in the list of chat IDs.
+"""
 import os
+from datetime import datetime, timedelta
 import requests
 from dotenv import load_dotenv
 from telegram import Bot
-from datetime import datetime, timedelta
 import pytz
 from groups_manager import load_chat_ids
 
@@ -30,7 +33,7 @@ def fetch_article():
         'date': f'{yesterday}',
     }
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
     if response.status_code == 200:
         data = response.json()
         if data['data']:

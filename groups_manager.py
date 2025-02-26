@@ -14,7 +14,7 @@ headers = {
 def load_chat_ids():
     """Fetch chat IDs from the Gist, ignoring any invalid lines."""
     url = f"https://api.github.com/gists/{GIST_ID}"
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
     if response.status_code == 200:
         files = response.json()["files"]
         content = files["chat_ids.txt"]["content"]
@@ -50,7 +50,7 @@ def update_gist(chat_ids):
             }
         }
     }
-    response = requests.patch(url, headers=headers, json=data)
+    response = requests.patch(url, headers=headers, json=data, timeout=10)
     if response.status_code == 200:
         print("chat_ids.txt updated successfully.")
     else:

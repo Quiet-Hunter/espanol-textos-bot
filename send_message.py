@@ -28,7 +28,7 @@ headers = {
 
 def fetch_words():
     """Fetches words and translations from a Google Sheets CSV."""
-    response = requests.get(GOOGLE_SHEETS_CSV_URL)
+    response = requests.get(GOOGLE_SHEETS_CSV_URL, timeout=10)
     response.raise_for_status()
     words = []
     csv_data = response.content.decode('utf-8').splitlines()
@@ -36,13 +36,14 @@ def fetch_words():
     next(reader)  # Skip the header
     for row in reader:
         if len(row) >= 2:
-            words.append((row[0], row[1]))  # Append (word, translation) tuples
+            if row[0] and row[1]:
+                words.append((row[0], row[1]))  # Append (word, translation) tuples
     return words
 
 def get_current_index():
     """Fetches the current index from index.txt in the Gist."""
     url = f"https://api.github.com/gists/{GIST_ID}"
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
     if response.status_code == 200:
         files = response.json().get("files", {})
         content = files.get("index.txt", {}).get("content", "0")
@@ -55,7 +56,7 @@ def save_current_index(index):
     """Updates the current index in index.txt in the Gist."""
     url = f"https://api.github.com/gists/{GIST_ID}"
     data = {"files": {"index.txt": {"content": str(index)}}}
-    response = requests.patch(url, headers=headers, json=data)
+    response = requests.patch(url, headers=headers, json=data, timeout=10)
     if response.status_code == 200:
         print("index.txt updated successfully in the Gist.")
     else:
